@@ -1,7 +1,5 @@
-import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -216,8 +214,8 @@ public class FrmBanco extends JFrame {
         tp.addTab("Cuentas", spCuentas);
         tp.addTab("Transacciones", spTransacciones);
 
-        getContentPane().add(tbBanco, BorderLayout.NORTH);
-        getContentPane().add(tp, BorderLayout.CENTER);
+        add(tbBanco, BorderLayout.NORTH);
+        add(tp, BorderLayout.CENTER);
     }
 
     private void btnAgregarCuentaClick() {
