@@ -28,6 +28,14 @@ public abstract class Cuenta {
         this.saldo = saldo;
     }
 
-    public abstract boolean retirar();
+    public abstract boolean retirar(double cantidad);
+
+    public boolean depositar(double cantidad) {
+        if (cantidad > 0) {
+            saldo += cantidad;
+            return true;
+        }
+        return false;
+    }
 
 }

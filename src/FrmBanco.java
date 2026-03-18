@@ -1,5 +1,7 @@
+import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -8,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -15,19 +18,18 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
-import javax.swing.table.DefaultTableModel;
+
+import modelos.TipoCuenta;
+import modelos.TipoTransaccion;
 
 public class FrmBanco extends JFrame {
 
-    private String[] encabezadosCuentas = new String[] { "Tipo", "Número", "Titular", "Saldo",
-            "Sobregiro o Límite" };
-    private String[] encabezadosTransacciones = new String[] { "Cuenta", "Tipo", "Valor", "Saldo" };
-    private String[] opcionesTransaccion = new String[] { "Depósito", "Retiro" };
-
+    
     private JTable tblCuentas, tblTransacciones;
     private JPanel pnlEditarCuenta, pnlEditarTransaccion;
 
-    private JTextField txtNumero, txtTitular, txtSaldoInicial, txtLimite, txtValor;
+    private JLabel lblValor, lblTasa, lblPlazo;
+    private JTextField txtNumero, txtTitular, txtValor, txtTasa, txtPlazo, txtValorTransaccion;
     private JComboBox cmbTipoCuenta, cmbTipoTransaccion, cmbCuenta;
 
     JTabbedPane tp;
@@ -42,7 +44,7 @@ public class FrmBanco extends JFrame {
         JButton btnAgregarCuenta = new JButton();
         btnAgregarCuenta.setIcon(new ImageIcon(getClass().getResource("/iconos/AgregarCuenta.png")));
         btnAgregarCuenta.setToolTipText("Agregar Cuenta");
-        btnAgregarCuenta.addActionListener(evt -> {
+        btnAgregarCuenta.addActionListener(e -> {
             btnAgregarCuentaClick();
         });
         tbBanco.add(btnAgregarCuenta);
@@ -50,7 +52,7 @@ public class FrmBanco extends JFrame {
         JButton btnQuitarCuenta = new JButton();
         btnQuitarCuenta.setIcon(new ImageIcon(getClass().getResource("/iconos/QuitarCuenta.png")));
         btnQuitarCuenta.setToolTipText("Quitar Cuenta");
-        btnQuitarCuenta.addActionListener(evt -> {
+        btnQuitarCuenta.addActionListener(e -> {
             btnQuitarCuentaClick();
         });
         tbBanco.add(btnQuitarCuenta);
@@ -58,7 +60,7 @@ public class FrmBanco extends JFrame {
         JButton btnTransaccion = new JButton();
         btnTransaccion.setIcon(new ImageIcon(getClass().getResource("/iconos/Transaccion.png")));
         btnTransaccion.setToolTipText("Realizar Transacción");
-        btnTransaccion.addActionListener(evt -> {
+        btnTransaccion.addActionListener(e -> {
             btnTransaccionClick();
         });
         tbBanco.add(btnTransaccion);
@@ -88,41 +90,88 @@ public class FrmBanco extends JFrame {
         txtTitular.setBounds(110, 40, 100, 25);
         pnlEditarCuenta.add(txtTitular);
 
-        JLabel lblSaldoInicial = new JLabel("Saldo Inicial");
-        lblSaldoInicial.setBounds(10, 70, 100, 25);
-        pnlEditarCuenta.add(lblSaldoInicial);
+        lblTasa = new JLabel("Tasa Interés");
+        lblTasa.setBounds(10, 70, 100, 25);
+        pnlEditarCuenta.add(lblTasa);
 
-        txtSaldoInicial = new JTextField();
-        txtSaldoInicial.setBounds(110, 70, 100, 25);
-        pnlEditarCuenta.add(txtSaldoInicial);
+        txtTasa = new JTextField();
+        txtTasa.setBounds(110, 70, 100, 25);
+        pnlEditarCuenta.add(txtTasa);
 
         cmbTipoCuenta = new JComboBox();
         cmbTipoCuenta.setBounds(220, 10, 100, 25);
-        String[] opciones = new String[] { "Ahorros", "Corriente", "Crédito" };
-        DefaultComboBoxModel mdlTipoCuenta = new DefaultComboBoxModel(opciones);
+
+        DefaultComboBoxModel mdlTipoCuenta = new DefaultComboBoxModel(TipoCuenta.values());
         cmbTipoCuenta.setModel(mdlTipoCuenta);
         pnlEditarCuenta.add(cmbTipoCuenta);
 
-        JLabel lblLimite = new JLabel("Sobregiro o Límite Crédito");
-        lblLimite.setBounds(220, 40, 100, 25);
-        pnlEditarCuenta.add(lblLimite);
+        cmbTipoCuenta.addActionListener(e -> {
+            switch ((TipoCuenta) cmbTipoCuenta.getSelectedItem()) {
+                case AHORRO:
+                    lblValor.setVisible(false);
+                    txtValor.setVisible(false);
+                    lblTasa.setVisible(true);
+                    txtTasa.setVisible(true);
+                    lblPlazo.setVisible(false);
+                    txtPlazo.setVisible(false);
+                    break;
+                case CORRIENTE:
+                    lblValor.setVisible(true);
+                    lblValor.setText("Sobregiro:");
+                    txtValor.setVisible(true);
+                    lblTasa.setVisible(false);
+                    txtTasa.setVisible(false);
+                    lblPlazo.setVisible(false);
+                    txtPlazo.setVisible(false);
+                    break;
 
-        txtLimite = new JTextField();
-        txtLimite.setBounds(320, 40, 100, 25);
-        pnlEditarCuenta.add(txtLimite);
+                case CREDITO:
+                    lblValor.setVisible(true);
+                    lblValor.setText("Valor Prestado:");
+                    txtValor.setVisible(true);
+                    lblTasa.setVisible(true);
+                    txtTasa.setVisible(true);
+                    lblPlazo.setVisible(true);
+                    txtPlazo.setVisible(true);
+                    break;
+            }
+        });
+
+        lblValor = new JLabel("");
+        lblValor.setBounds(220, 40, 100, 25);
+        lblValor.setVisible(false);
+        pnlEditarCuenta.add(lblValor);
+
+        txtValor = new JTextField();
+        txtValor.setBounds(320, 40, 100, 25);
+        txtValor.setVisible(false);
+        pnlEditarCuenta.add(txtValor);
+
+        lblPlazo = new JLabel("Plazo:");
+        lblPlazo.setBounds(430, 40, 100, 25);
+        lblPlazo.setVisible(false);
+        pnlEditarCuenta.add(lblPlazo);
+
+        txtPlazo = new JTextField();
+        txtPlazo.setBounds(490, 40, 100, 25);
+        txtPlazo.setVisible(false);
+        pnlEditarCuenta.add(txtPlazo);
 
         JButton btnGuardarCuenta = new JButton("Guardar");
         btnGuardarCuenta.setBounds(220, 70, 100, 25);
-        btnGuardarCuenta.addActionListener(evt -> {
-            btnGuardarCuentaClick();
-
+        btnGuardarCuenta.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnGuardarCuentaClick();
+            }
         });
         pnlEditarCuenta.add(btnGuardarCuenta);
 
         JButton btnCancelarCuenta = new JButton("Cancelar");
         btnCancelarCuenta.setBounds(320, 70, 100, 25);
-        btnCancelarCuenta.addActionListener(evt -> {
-            btnCancelarCuentaClick();
+        btnCancelarCuenta.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnCancelarCuentaClick();
+            }
         });
         pnlEditarCuenta.add(btnCancelarCuenta);
 
@@ -132,8 +181,7 @@ public class FrmBanco extends JFrame {
         tblCuentas = new JTable();
         JScrollPane spListaCuentas = new JScrollPane(tblCuentas);
 
-        DefaultTableModel dtm = new DefaultTableModel(null, encabezadosCuentas);
-        tblCuentas.setModel(dtm);
+        
 
         // Agregar componentes
         pnlCuentas.add(pnlEditarCuenta);
@@ -167,29 +215,33 @@ public class FrmBanco extends JFrame {
 
         cmbTipoTransaccion = new JComboBox();
         cmbTipoTransaccion.setBounds(110, 40, 100, 25);
-        DefaultComboBoxModel mdlTipoTransaccion = new DefaultComboBoxModel(opcionesTransaccion);
+        DefaultComboBoxModel mdlTipoTransaccion = new DefaultComboBoxModel(TipoTransaccion.values());
         cmbTipoTransaccion.setModel(mdlTipoTransaccion);
         pnlEditarTransaccion.add(cmbTipoTransaccion);
 
-        JLabel lblValor = new JLabel("Valor");
-        lblValor.setBounds(10, 70, 100, 25);
-        pnlEditarTransaccion.add(lblValor);
+        JLabel lblValorTransaccion = new JLabel("Valor Transacción:");
+        lblValorTransaccion.setBounds(10, 70, 100, 25);
+        pnlEditarTransaccion.add(lblValorTransaccion);
 
-        txtValor = new JTextField();
-        txtValor.setBounds(110, 70, 100, 25);
-        pnlEditarTransaccion.add(txtValor);
+        txtValorTransaccion = new JTextField();
+        txtValorTransaccion.setBounds(110, 70, 100, 25);
+        pnlEditarTransaccion.add(txtValorTransaccion);
 
         JButton btnGuardarTransaccion = new JButton("Guardar");
         btnGuardarTransaccion.setBounds(220, 70, 100, 25);
-        btnGuardarTransaccion.addActionListener(evt -> {
-            btnGuardarTransaccionClick();
+        btnGuardarTransaccion.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnGuardarTransaccionClick();
+            }
         });
         pnlEditarTransaccion.add(btnGuardarTransaccion);
 
         JButton btnCancelarTransaccion = new JButton("Cancelar");
         btnCancelarTransaccion.setBounds(320, 70, 100, 25);
-        btnCancelarTransaccion.addActionListener(evt -> {
-            btnCancelarTransaccionClick();
+        btnCancelarTransaccion.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnCancelarTransaccionClick();
+            }
         });
         pnlEditarTransaccion.add(btnCancelarTransaccion);
 
@@ -199,8 +251,7 @@ public class FrmBanco extends JFrame {
         tblTransacciones = new JTable();
         JScrollPane spListaTransacciones = new JScrollPane(tblTransacciones);
 
-        dtm = new DefaultTableModel(null, encabezadosTransacciones);
-        tblTransacciones.setModel(dtm);
+        
 
         // Agregar componentes
         pnlTransacciones.add(pnlEditarTransaccion);
@@ -230,6 +281,7 @@ public class FrmBanco extends JFrame {
 
     private void btnGuardarCuentaClick() {
         pnlEditarCuenta.setVisible(false);
+
 
     }
 
