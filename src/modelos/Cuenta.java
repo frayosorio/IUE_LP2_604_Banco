@@ -38,4 +38,6 @@ public abstract class Cuenta {
         return false;
     }
 
+    public abstract String[] getDatos();
+
 }

@@ -1,5 +1,7 @@
 package modelos;
 
+import java.text.DecimalFormat;
+
 public class Credito extends Cuenta {
 
     private double valorPrestado;
@@ -58,4 +60,18 @@ public class Credito extends Cuenta {
         }
     }
 
+    @Override
+    public String[] getDatos() {
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        return new String[] {
+                "Crédito",
+                getNumero(),
+                getTitular(),
+                "Saldo adeudado: $" + df.format(getSaldoDeuda()),
+                "Valor: $" + df.format(valorPrestado) +
+                        " plazo:" + plazo +
+                        " tasa:" + df.format(tasaInteres) + "%"+
+                        " cuota: %" + df.format(getCuota()) ,
+        };
+    }
 }

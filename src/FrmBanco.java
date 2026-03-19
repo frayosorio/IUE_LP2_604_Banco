@@ -21,10 +21,10 @@ import javax.swing.WindowConstants;
 
 import modelos.TipoCuenta;
 import modelos.TipoTransaccion;
+import servicios.CuentaServicio;
 
 public class FrmBanco extends JFrame {
 
-    
     private JTable tblCuentas, tblTransacciones;
     private JPanel pnlEditarCuenta, pnlEditarTransaccion;
 
@@ -181,7 +181,7 @@ public class FrmBanco extends JFrame {
         tblCuentas = new JTable();
         JScrollPane spListaCuentas = new JScrollPane(tblCuentas);
 
-        
+        CuentaServicio.mostrar(tblCuentas);
 
         // Agregar componentes
         pnlCuentas.add(pnlEditarCuenta);
@@ -251,8 +251,6 @@ public class FrmBanco extends JFrame {
         tblTransacciones = new JTable();
         JScrollPane spListaTransacciones = new JScrollPane(tblTransacciones);
 
-        
-
         // Agregar componentes
         pnlTransacciones.add(pnlEditarTransaccion);
         pnlTransacciones.add(spListaTransacciones);
@@ -276,13 +274,29 @@ public class FrmBanco extends JFrame {
     }
 
     private void btnQuitarCuentaClick() {
+        if (tblCuentas.getSelectedRow() >= 0) {
+            if(JOptionPane.showConfirmDialog(null, "Está seguro de eliminar la cuenta?", "Confirmacipon", JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION){
 
+            if (CuentaServicio.eliminar(tblCuentas.getSelectedRow()))
+                CuentaServicio.mostrar(tblCuentas);
+        }
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Debe seleccionar una cuenta");
+        }
     }
 
     private void btnGuardarCuentaClick() {
         pnlEditarCuenta.setVisible(false);
-
-
+        TipoCuenta tipo = (TipoCuenta) cmbTipoCuenta.getSelectedItem();
+        CuentaServicio.agregar(tipo,
+                txtTitular.getText(),
+                txtNumero.getText(),
+                tipo == TipoCuenta.CORRIENTE ? Double.parseDouble(txtValor.getText()) : 0,
+                tipo == TipoCuenta.AHORRO || tipo == TipoCuenta.CREDITO ? Double.parseDouble(txtTasa.getText()) : 0,
+                tipo == TipoCuenta.CREDITO ? Double.parseDouble(txtValor.getText()) : 0,
+                tipo == TipoCuenta.CREDITO ? Integer.parseInt(txtPlazo.getText()) : 0);
+        CuentaServicio.mostrar(tblCuentas);
     }
 
     private void btnCancelarCuentaClick() {
