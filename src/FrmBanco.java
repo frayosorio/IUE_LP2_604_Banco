@@ -21,7 +21,9 @@ import javax.swing.WindowConstants;
 
 import modelos.TipoCuenta;
 import modelos.TipoTransaccion;
+import modelos.Transaccion;
 import servicios.CuentaServicio;
+import servicios.TransaccionServicio;
 
 public class FrmBanco extends JFrame {
 
@@ -206,7 +208,7 @@ public class FrmBanco extends JFrame {
         pnlEditarTransaccion.add(lblCuenta);
 
         cmbCuenta = new JComboBox();
-        cmbCuenta.setBounds(110, 10, 100, 25);
+        cmbCuenta.setBounds(110, 10, 400, 25);
         pnlEditarTransaccion.add(cmbCuenta);
 
         JLabel lblTipo = new JLabel("Tipo");
@@ -275,13 +277,13 @@ public class FrmBanco extends JFrame {
 
     private void btnQuitarCuentaClick() {
         if (tblCuentas.getSelectedRow() >= 0) {
-            if(JOptionPane.showConfirmDialog(null, "Está seguro de eliminar la cuenta?", "Confirmacipon", JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION){
+            if (JOptionPane.showConfirmDialog(null, "Está seguro de eliminar la cuenta?", "Confirmacipon",
+                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 
-            if (CuentaServicio.eliminar(tblCuentas.getSelectedRow()))
-                CuentaServicio.mostrar(tblCuentas);
-        }
-        }
-        else{
+                if (CuentaServicio.eliminar(tblCuentas.getSelectedRow()))
+                    CuentaServicio.mostrar(tblCuentas);
+            }
+        } else {
             JOptionPane.showMessageDialog(null, "Debe seleccionar una cuenta");
         }
     }
@@ -289,7 +291,7 @@ public class FrmBanco extends JFrame {
     private void btnGuardarCuentaClick() {
         pnlEditarCuenta.setVisible(false);
         TipoCuenta tipo = (TipoCuenta) cmbTipoCuenta.getSelectedItem();
-        CuentaServicio.agregar(tipo,
+        var cuentaAgregada = CuentaServicio.agregar(tipo,
                 txtTitular.getText(),
                 txtNumero.getText(),
                 tipo == TipoCuenta.CORRIENTE ? Double.parseDouble(txtValor.getText()) : 0,
@@ -297,6 +299,7 @@ public class FrmBanco extends JFrame {
                 tipo == TipoCuenta.CREDITO ? Double.parseDouble(txtValor.getText()) : 0,
                 tipo == TipoCuenta.CREDITO ? Integer.parseInt(txtPlazo.getText()) : 0);
         CuentaServicio.mostrar(tblCuentas);
+        cmbCuenta.addItem(cuentaAgregada.toString());
     }
 
     private void btnCancelarCuentaClick() {
@@ -311,8 +314,21 @@ public class FrmBanco extends JFrame {
     }
 
     private void btnGuardarTransaccionClick() {
-        pnlEditarTransaccion.setVisible(false);
-
+        var valor = Double.parseDouble(txtValorTransaccion.getText());
+        if (valor > 0 && cmbCuenta.getSelectedIndex() >= 0) {
+            var transaccionAgregada = TransaccionServicio.agregar(
+                    CuentaServicio.get(cmbCuenta.getSelectedIndex()),
+                    (TipoTransaccion) cmbTipoTransaccion.getSelectedItem(),
+                    valor);
+            if (transaccionAgregada != null) {
+                TransaccionServicio.mostrar(tblTransacciones);
+                pnlEditarTransaccion.setVisible(false);
+            } else {
+                JOptionPane.showMessageDialog(null, "No se pudo realizar la transacción");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Debe seleccionar una cuenta y especificar un valor positivo");
+        }
     }
 
     private void btnCancelarTransaccionClick() {

@@ -41,4 +41,20 @@ public class Ahorro extends Cuenta {
         };
     }
 
+    @Override
+    public String toString() {
+        return "Ahorros [Numero=" + getNumero() + ", Titular=" + getTitular() + "]";
+    }
+
+    @Override
+    public boolean procesarTransaccion(TipoTransaccion tipo, double valor) {
+        switch (tipo) {
+            case DEPOSITAR:
+                return depositar(valor);
+            case RETIRAR:
+                return retirar(valor);
+        }
+        return false;
+    }
+
 }

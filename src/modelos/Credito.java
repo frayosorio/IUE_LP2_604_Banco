@@ -33,9 +33,13 @@ public class Credito extends Cuenta {
         return valorRetirado;
     }
 
+    public double getSaldoRetiro() {
+        return valorPrestado - getValorRetirado();
+    }
+
     @Override
     public boolean retirar(double cantidad) {
-        if (cantidad < valorPrestado - valorRetirado) {
+        if (cantidad > 0 && cantidad <= getSaldoRetiro()) {
             valorRetirado += cantidad;
             return true;
         }
@@ -44,20 +48,23 @@ public class Credito extends Cuenta {
 
     public double getCuota() {
         double tasaReal = tasaInteres / 100;
-        return valorPrestado * (1 + tasaReal) * tasaReal / ((1 + tasaReal) - 1);
+        return valorPrestado * Math.pow(1 + tasaReal, plazo) * tasaReal / (Math.pow(1 + tasaReal, plazo) - 1);
     }
 
     private double getSaldoDeuda() {
         return valorPrestado - getSaldo();
     }
 
-    public void pagar(double cantidad) {
-        if (getSaldo() < valorPrestado) {
+    public boolean pagar(double cantidad) {
+        if (cantidad > 0 && getSaldoDeuda() > 0) {
             var intereses = getSaldoDeuda() * tasaInteres / 100;
             var abonoCapital = cantidad - intereses;
-            if (abonoCapital > 0)
+            if (abonoCapital > 0) {
                 setSaldo(getSaldo() + abonoCapital);
+                return true;
+            }
         }
+        return false;
     }
 
     @Override
@@ -70,8 +77,30 @@ public class Credito extends Cuenta {
                 "Saldo adeudado: $" + df.format(getSaldoDeuda()),
                 "Valor: $" + df.format(valorPrestado) +
                         " plazo:" + plazo +
-                        " tasa:" + df.format(tasaInteres) + "%"+
-                        " cuota: %" + df.format(getCuota()) ,
+                        " tasa:" + df.format(tasaInteres) + "%" +
+                        " cuota: %" + df.format(getCuota()),
         };
     }
+
+    @Override
+    public String toString() {
+        return "Crédito [Numero=" + getNumero() + ", Titular=" + getTitular() + "]";
+    }
+
+    @Override
+    public boolean procesarTransaccion(TipoTransaccion tipo, double valor) {
+        switch (tipo) {
+            case DEPOSITAR:
+                return pagar(valor);
+            case RETIRAR:
+                return retirar(valor);
+        }
+        return false;
+    }
+
+    @Override
+    public double getSaldoPorTransaccion(TipoTransaccion tipo) {
+        return (tipo == TipoTransaccion.RETIRAR) ? getSaldoRetiro() : getSaldoDeuda();
+    }
+
 }

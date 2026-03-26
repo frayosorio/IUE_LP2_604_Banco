@@ -28,13 +28,29 @@ public class Corriente extends Cuenta {
     public String[] getDatos() {
         DecimalFormat df = new DecimalFormat("#,##0.00");
         return new String[] {
-                "Ahorros",
+                "Corriente",
                 getNumero(),
                 getTitular(),
                 df.format(getSaldo()),
                 "sobregiro: $" + df.format(sobregiro)
 
         };
+    }
+
+    @Override
+    public String toString() {
+        return "Corriente [Numero=" + getNumero() + ", Titular=" + getTitular() + "]";
+    }
+
+    @Override
+    public boolean procesarTransaccion(TipoTransaccion tipo, double valor) {
+        switch (tipo) {
+            case DEPOSITAR:
+                return depositar(valor);
+            case RETIRAR:
+                return retirar(valor);
+        }
+        return false;
     }
 
 }

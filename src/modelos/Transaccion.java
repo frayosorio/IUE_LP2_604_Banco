@@ -1,13 +1,15 @@
 package modelos;
 
+import java.text.DecimalFormat;
+
 public class Transaccion {
 
     private Cuenta cuenta;
-    private TipoCuenta tipo;
+    private TipoTransaccion tipo;
     private double valor;
     private double saldo;
     
-    public Transaccion(Cuenta cuenta, TipoCuenta tipo, double valor, double saldo) {
+    public Transaccion(Cuenta cuenta, TipoTransaccion tipo, double valor, double saldo) {
         this.cuenta = cuenta;
         this.tipo = tipo;
         this.valor = valor;
@@ -18,7 +20,7 @@ public class Transaccion {
         return cuenta;
     }
 
-    public TipoCuenta getTipo() {
+    public TipoTransaccion getTipo() {
         return tipo;
     }
 
@@ -30,6 +32,16 @@ public class Transaccion {
         return saldo;
     }
 
-    
+
+    public String[] getDatos() {
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        return new String[] {
+                cuenta.toString(),
+                tipo.toString(),
+                df.format(valor),
+                df.format(saldo)
+
+        };
+    }
 
 }
