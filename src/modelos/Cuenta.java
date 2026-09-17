@@ -24,10 +24,12 @@ public abstract class Cuenta {
         return numero;
     }
 
+    // Metodo accesible solo por las clases HIJAs
     protected void setSaldo(double saldo) {
         this.saldo = saldo;
     }
 
+    // Metodo que deben implementar las clases HIJAs
     public abstract boolean retirar(double valor);
 
     public boolean depositar(double valor) {
