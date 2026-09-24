@@ -1,5 +1,7 @@
 package modelos;
 
+import java.text.DecimalFormat;
+
 public class Credito extends Cuenta {
     private double valorPrestado;
     private double tasaInteres;
@@ -36,8 +38,9 @@ public class Credito extends Cuenta {
     }
 
     public double getCuota() {
-        double factor = Math.pow(1 + tasaInteres / 100, plazo);
-        return valorPrestado * factor * tasaInteres / (factor - 1);
+        double tasa = tasaInteres / 100;
+        double factor = Math.pow(1 + tasa, plazo);
+        return valorPrestado * factor * tasa / (factor - 1);
     }
 
     public double getSaldoDeuda() {
@@ -63,6 +66,19 @@ public class Credito extends Cuenta {
             }
         }
         return false;
+    }
+
+    @Override
+    public String[] getDatos() {
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        return new String[] {
+                "CRÉDITO",
+                getNumero(),
+                getTitular(),
+                "Valor Préstamo $" + df.format(valorPrestado) + " Tasa Interés " + df.format(tasaInteres)
+                        + "% Plazo " + plazo + " Cuota $" + df.format(getCuota()),
+                "Saldo Adeudado $ " + df.format(getSaldoDeuda()) + " Saldo Retiro $ " + df.format(getSaldoRetiro())
+        };
     }
 
 }

@@ -29,8 +29,10 @@ public abstract class Cuenta {
         this.saldo = saldo;
     }
 
-    // Metodo que deben implementar las clases HIJAs
+    // Metodos que deben implementar las clases HIJAs
     public abstract boolean retirar(double valor);
+
+    public abstract String[] getDatos();
 
     public boolean depositar(double valor) {
         if (valor > 0) {

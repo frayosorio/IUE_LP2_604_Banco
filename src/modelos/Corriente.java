@@ -1,5 +1,7 @@
 package modelos;
 
+import java.text.DecimalFormat;
+
 public class Corriente extends Cuenta {
 
     private double sobregiro;
@@ -22,4 +24,15 @@ public class Corriente extends Cuenta {
         return false;
     }
 
+    @Override
+    public String[] getDatos() {
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        return new String[] {
+                "CORRIENTE",
+                getNumero(),
+                getTitular(),
+                "Sobregiro $ " + df.format(sobregiro),
+                "$ " + df.format(getSaldo())
+        };
+    }
 }

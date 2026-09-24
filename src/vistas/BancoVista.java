@@ -1,5 +1,8 @@
+package vistas;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -8,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -19,10 +23,8 @@ import javax.swing.table.DefaultTableModel;
 
 import modelos.TipoCuenta;
 
-public class FrmBanco extends JFrame {
+public class BancoVista extends JFrame {
 
-    private String[] encabezadosCuentas = new String[] { "Tipo", "Número", "Titular", "Saldo",
-            "Sobregiro o Límite" };
     private String[] encabezadosTransacciones = new String[] { "Cuenta", "Tipo", "Valor", "Saldo" };
     private String[] opcionesTransaccion = new String[] { "Depósito", "Retiro" };
 
@@ -33,9 +35,11 @@ public class FrmBanco extends JFrame {
     private JComboBox cmbTipoCuenta, cmbTipoTransaccion, cmbCuenta;
     private JLabel lblValor, lblPlazo, lblTasaInteres;
 
-    JTabbedPane tp;
+    private JTabbedPane tp;
 
-    public FrmBanco() {
+    private JButton btnGuardarCuenta, btnQuitarCuenta;
+
+    public BancoVista() {
         setSize(600, 400);
         setTitle("Cuentas Bancarias");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -45,23 +49,20 @@ public class FrmBanco extends JFrame {
         JButton btnAgregarCuenta = new JButton();
         btnAgregarCuenta.setIcon(new ImageIcon(getClass().getResource("/iconos/AgregarCuenta.png")));
         btnAgregarCuenta.setToolTipText("Agregar Cuenta");
-        btnAgregarCuenta.addActionListener(evt -> {
+        btnAgregarCuenta.addActionListener(evento -> {
             btnAgregarCuentaClick();
         });
         tbBanco.add(btnAgregarCuenta);
 
-        JButton btnQuitarCuenta = new JButton();
+        btnQuitarCuenta = new JButton();
         btnQuitarCuenta.setIcon(new ImageIcon(getClass().getResource("/iconos/QuitarCuenta.png")));
         btnQuitarCuenta.setToolTipText("Quitar Cuenta");
-        btnQuitarCuenta.addActionListener(evt -> {
-            btnQuitarCuentaClick();
-        });
         tbBanco.add(btnQuitarCuenta);
 
         JButton btnTransaccion = new JButton();
         btnTransaccion.setIcon(new ImageIcon(getClass().getResource("/iconos/Transaccion.png")));
         btnTransaccion.setToolTipText("Realizar Transacción");
-        btnTransaccion.addActionListener(evt -> {
+        btnTransaccion.addActionListener(evento -> {
             btnTransaccionClick();
         });
         tbBanco.add(btnTransaccion);
@@ -157,12 +158,9 @@ public class FrmBanco extends JFrame {
             }
         });
 
-        JButton btnGuardarCuenta = new JButton("Guardar");
+        btnGuardarCuenta = new JButton("Guardar");
         btnGuardarCuenta.setBounds(220, 70, 100, 25);
-        btnGuardarCuenta.addActionListener(evt -> {
-            btnGuardarCuentaClick();
 
-        });
         pnlEditarCuenta.add(btnGuardarCuenta);
 
         JButton btnCancelarCuenta = new JButton("Cancelar");
@@ -177,9 +175,6 @@ public class FrmBanco extends JFrame {
         // Panel 2 (siempre visible)
         tblCuentas = new JTable();
         JScrollPane spListaCuentas = new JScrollPane(tblCuentas);
-
-        DefaultTableModel dtm = new DefaultTableModel(null, encabezadosCuentas);
-        tblCuentas.setModel(dtm);
 
         // Agregar componentes
         pnlCuentas.add(pnlEditarCuenta);
@@ -245,8 +240,8 @@ public class FrmBanco extends JFrame {
         tblTransacciones = new JTable();
         JScrollPane spListaTransacciones = new JScrollPane(tblTransacciones);
 
-        dtm = new DefaultTableModel(null, encabezadosTransacciones);
-        tblTransacciones.setModel(dtm);
+        // dtm = new DefaultTableModel(null, encabezadosTransacciones);
+        // tblTransacciones.setModel(dtm);
 
         // Agregar componentes
         pnlTransacciones.add(pnlEditarTransaccion);
@@ -264,23 +259,86 @@ public class FrmBanco extends JFrame {
         getContentPane().add(tp, BorderLayout.CENTER);
     }
 
+    // getters
+
+    public TipoCuenta getTipoCuentaSeleccionada() {
+        return (TipoCuenta) cmbTipoCuenta.getSelectedItem();
+    }
+
+    public String getNumero() {
+        return txtNumero.getText();
+    }
+
+    public String getTitular() {
+        return txtTitular.getText();
+    }
+
+    public double getTasaInteres() {
+        try {
+            return Double.parseDouble(txtTasaInteres.getText());
+        } catch (Exception ex) {
+        }
+        return 0;
+    }
+
+    public double getValor() {
+        try {
+            return Double.parseDouble(txtValor.getText());
+        } catch (Exception ex) {
+        }
+        return 0;
+    }
+
+    public int getPlazo() {
+        try {
+            return Integer.parseInt(txtPlazo.getText());
+        } catch (Exception ex) {
+        }
+        return 0;
+    }
+
+    public int getFilaCuentaSeleccionada() {
+        return tblCuentas.getSelectedRow();
+    }
+
+    // setters
+    public void setGuardarCuentaClick(ActionListener escuchadorEventos) {
+        btnGuardarCuenta.addActionListener(escuchadorEventos);
+    }
+
+    public void setEliminarCuentaClick(ActionListener escuchadorEventos) {
+        btnQuitarCuenta.addActionListener(escuchadorEventos);
+    }
+
+    public boolean confirmar(String mensaje) {
+        return JOptionPane.showConfirmDialog(null, mensaje, "",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+    }
+
+    public void mostrarMensaje(String mensaje) {
+        JOptionPane.showMessageDialog(null, mensaje);
+    }
+
+    public void mostrarCuentas(String[][] datos, String[] encabezados) {
+        DefaultTableModel dtm = new DefaultTableModel(datos, encabezados);
+        tblCuentas.setModel(dtm);
+    }
+
     private void btnAgregarCuentaClick() {
         pnlEditarCuenta.setVisible(true);
         tp.setSelectedIndex(0);
-
     }
 
     private void btnQuitarCuentaClick() {
 
     }
 
-    private void btnGuardarCuentaClick() {
+    public void ocultarPanelEditarCuenta() {
         pnlEditarCuenta.setVisible(false);
-
     }
 
     private void btnCancelarCuentaClick() {
-        pnlEditarCuenta.setVisible(false);
+        ocultarPanelEditarCuenta();
 
     }
 

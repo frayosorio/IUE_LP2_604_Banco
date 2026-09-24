@@ -1,5 +1,7 @@
 package modelos;
 
+import java.text.DecimalFormat;
+
 public class Ahorros extends Cuenta {
 
     private double tasaInteres;
@@ -24,6 +26,19 @@ public class Ahorros extends Cuenta {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public String[] getDatos() {
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        return new String[] {
+                "AHORROS",
+                getNumero(),
+                getTitular(),
+                "Tasa de interés " + df.format(tasaInteres) + "%",
+                "$ " + df.format(getSaldo())
+        };
+
     }
 
 }
